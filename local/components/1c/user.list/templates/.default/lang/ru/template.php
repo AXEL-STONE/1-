@@ -1,5 +1,5 @@
 <?php
-$MESS['TITLE_TEMPLATE'] = 'Список пользователей';
+$MESS['TITLE_TEMPLATE'] = 'Данные пользователей';
 $MESS['TAB_NAME_LIST'] = 'Список пользователей';
 $MESS['TAB_NAME_EXPORT'] = 'Выгрузка пользователей';
 $MESS['START_EXPORT'] = 'Запуск выгрузки';
