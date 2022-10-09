@@ -7,12 +7,6 @@
     window.JCUserList = function(arParams)
     {
         this.stop = false;
-        this.progressBar = BX('progress-export-bar');
-        this.progressContainer = BX('progress-export');
-        this.stopExportButton = BX('stop-export');
-        this.startExportButton = BX('start-export');
-        this.successExport = BX('success-export');
-        this.fileSizeContainer = BX('file-size-container');
         this.exportUser = {
             path: arParams.componentPath+'/ajax.php',
             params: {
@@ -25,7 +19,16 @@
     }
 
     window.JCUserList.prototype = {
+        initContainers: function() {
+            this.progressBar = BX('progress-export-bar');
+            this.progressContainer = BX('progress-export');
+            this.stopExportButton = BX('stop-export');
+            this.startExportButton = BX('start-export');
+            this.successExport = BX('success-export');
+            this.fileSizeContainer = BX('file-size-container');
+        },
         init: function() {
+            this.initContainers();
             BX.bind(this.startExportButton, 'click', BX.proxy(this.startExport, this));
             BX.bind(this.stopExportButton, 'click', BX.proxy(this.stopExport, this));
         },
@@ -43,6 +46,7 @@
         },
         onsuccess: function (data) {
             if(!data.stop && !this.stop) {
+                this.initContainers();
                 this.exportUser.params.page = data.page;
                 this.stopExportButton.style.display = 'inline-block';
                 this.progressContainer.style.display = 'flex';
