@@ -4,9 +4,9 @@
     if (window.JCUserList)
         return;
 
+    window.stop = false;
     window.JCUserList = function(arParams)
     {
-        this.stop = false;
         this.exportUser = {
             path: arParams.componentPath+'/ajax.php',
             params: {
@@ -42,10 +42,10 @@
             });
         },
         stopExport: function() {
-            this.stop = true;
+            window.stop = true;
         },
         onsuccess: function (data) {
-            if(!data.stop && !this.stop) {
+            if(!data.stop && !window.stop) {
                 this.initContainers();
                 this.exportUser.params.page = data.page;
                 this.stopExportButton.style.display = 'inline-block';
@@ -58,7 +58,7 @@
                 this.progressBar.innerHTML = data.percent+'%';
                 this.startExport();
             }
-            if(this.stop) {
+            if(window.stop) {
                 this.stopExportButton.style.display = 'none';
                 this.progressContainer.style.display = 'none';
                 this.startExportButton.style.display = 'inline-block';
@@ -67,7 +67,7 @@
                 this.progressBar.style.width = '0%';
                 this.progressBar.style.ariaValuenow = 0;
                 this.progressBar.innerHTML = '0%';
-                this.stop = false;
+                window.stop = false;
                 this.exportUser.params.page = 1;
             }
             if(data.stop) {

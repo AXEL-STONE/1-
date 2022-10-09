@@ -3,7 +3,16 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
     die();
 }
 
-use Bitrix\Main\Localization\Loc as Loc;
+/**
+ * @var string $componentPath
+ * @var string $componentName
+ * @var array $arCurrentValues
+ * @var array $templateProperties
+ * @global CUserTypeManager $USER_FIELD_MANAGER
+ */
+
+use Bitrix\Main\Localization\Loc as Loc,
+    Bitrix\Main\GroupTable;
 
 $arSorts = ['ASC' => Loc::getMessage('ORDER_ASC'), 'DESC' => Loc::getMessage('ORDER_DESC')];
 
@@ -23,6 +32,18 @@ $arFieldsCode = [
     'TIMESTAMP_X' => Loc::getMessage('SORT_FIELD_BY_TIMESTAMP_X'),
 ];
 
+$arGroups = [];
+$resGroup = GroupTable::getList([
+    'select' => ['NAME', 'ID'],
+]);
+while ($group = $resGroup->fetch()) {
+    $arGroups[$group['ID']] = $group['NAME'];
+}
+if(!isset($arCurrentValues['CHECK_GROUP_ID'])) {
+    $arCurrentValues['CHECK_GROUP_ID'] = [
+        0 => 6,
+    ];
+}
 $arComponentParameters = [
     'GROUPS' => [
     ],
@@ -39,7 +60,6 @@ $arComponentParameters = [
             'PARENT' => 'BASE',
             'NAME' => Loc::getMessage('SORT_BY'),
             'TYPE' => 'LIST',
-            'DEFAULT' => 'ID',
             'VALUES' => $arSortFields,
             'ADDITIONAL_VALUES' => 'Y',
         ],
@@ -69,6 +89,22 @@ $arComponentParameters = [
             'VALUES' => $arFieldsCode,
             'MULTIPLE' => 'Y',
             "ADDITIONAL_VALUES" => "Y",
+        ],
+        'CHECK_GROUP_REG' => [
+            'PARENT' => 'BASE',
+            'NAME' => Loc::getMessage('CHECK_GROUP_REG'),
+            'TYPE' => 'CHECKBOX',
+            'DEFAULT' => 'Y',
+            'REFRESH' => 'Y',
+        ],
+        'CHECK_GROUP_ID' => [
+            'PARENT' => 'BASE',
+            'NAME' => Loc::getMessage('CHECK_GROUP_ID'),
+            'TYPE' => 'LIST',
+            'MULTIPLE' => 'Y',
+            'VALUES' => $arGroups,
+            'ADDITIONAL_VALUES' => 'Y',
+            'HIDDEN' => (isset($arCurrentValues['CHECK_GROUP_REG']) && $arCurrentValues['CHECK_GROUP_REG'] === 'N' ? 'Y' : 'N')
         ],
     ],
 ];

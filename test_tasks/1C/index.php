@@ -30,7 +30,12 @@ $APPLICATION->IncludeComponent(
 			4 => "TIMESTAMP_X",
 			5 => "",
 		),
-		"EXPORT_ELEMENT_COUNT" => "1000"
+		"EXPORT_ELEMENT_COUNT" => "1000",
+		"CHECK_GROUP_REG" => "Y",
+		"CHECK_GROUP_ID" => array(
+			0 => "6",
+			1 => "",
+		)
 	),
 	false
 );

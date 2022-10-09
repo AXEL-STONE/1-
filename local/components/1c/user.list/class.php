@@ -4,6 +4,7 @@ use Bitrix\Main\Localization\Loc as Loc,
     Bitrix\Main\Application,
     Bitrix\Main\UI\PageNavigation,
     Bitrix\Main\SystemException,
+    Bitrix\Main\GroupTable,
     Bitrix\Main\UserTable;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) {
@@ -16,6 +17,8 @@ class TestTaskComponent extends \CBitrixComponent
     protected $cacheAddon = [];
     protected $availableFields = [];
     protected $returned;
+    protected $userGroupID;
+    const USER_GROUP_REG = 6;
 
     public function onIncludeComponentLang()
     {
@@ -36,6 +39,7 @@ class TestTaskComponent extends \CBitrixComponent
             'SORT_ORDER' => $params['SORT_ORDER'] == 'ASC' ? 'ASC' : 'DESC',
             'CACHE_TYPE' => $params['CACHE_TYPE'] == 'Y' ? 'Y' : 'N',
             'EXPORT_DATA' => $params['EXPORT_DATA'] == 'Y',
+            'CHECK_GROUP_REG' => $params['CHECK_GROUP_REG'] == 'Y',
             'CACHE_GROUPS' => $params['CACHE_GROUPS'] == 'Y' ? 'Y' : 'N',
             'CACHE_TIME' => intval($params['CACHE_TIME']) > 0 ? intval($params['CACHE_TIME']) : 3600,
             'AJAX' => $params['AJAX'] == 'N' ? 'N' : $_REQUEST['AJAX'] == 'Y' ? 'Y' : 'N',
@@ -46,8 +50,10 @@ class TestTaskComponent extends \CBitrixComponent
                 'EMAIL',
                 'TIMESTAMP_X',
             ],
+            'CHECK_GROUP_ID' => is_array($params['CHECK_GROUP_ID']) && count($params['CHECK_GROUP_ID']) ? $params['CHECK_GROUP_ID'] : [USER_GROUP_REG],
         ];
         trimArr($result['FIELD_CODE']);
+        trimArr($result['CHECK_GROUP_ID']);
         $nav = new PageNavigation('nav');
         $nav->allowAllRecords(false)
             ->setPageSize($result['PAGE_ELEMENT_COUNT'])
@@ -67,6 +73,25 @@ class TestTaskComponent extends \CBitrixComponent
         }
         unset($this->availableFields['PASSWORD']);
         unset($this->availableFields['CONFIRM_CODE']);
+    }
+
+    /**
+     * проверка выбранных групп на существование
+     */
+    public function checkGroupParam()
+    {
+        if(count($this->arParams['CHECK_GROUP_ID'])) {
+            $resGroup = GroupTable::getList([
+                'select' => ['ID'],
+                'filter' => ['=ID' => $this->arParams['CHECK_GROUP_ID']]
+            ]);
+            while ($group = $resGroup->fetch()) {
+                $this->userGroupID[] = $group['ID'];
+            }
+            if(count($this->userGroupID) == 0) $this->arParams['CHECK_GROUP_REG'] = false;
+        } else {
+            $this->arParams['CHECK_GROUP_REG'] = false;
+        }
     }
 
     /**
@@ -138,6 +163,7 @@ class TestTaskComponent extends \CBitrixComponent
     protected function getResult()
     {
         $filter = ['ACTIVE' => 'Y'];
+        if($this->arParams['CHECK_GROUP_REG']) $filter['Bitrix\Main\UserGroupTable:USER.GROUP_ID'] = $this->userGroupID;
 
         $nav = new PageNavigation('nav');
         $nav->allowAllRecords(false)
@@ -169,6 +195,8 @@ class TestTaskComponent extends \CBitrixComponent
     public function exportData()
     {
         $filter = ['ACTIVE' => 'Y'];
+        if($this->arParams['CHECK_GROUP_REG']) $filter['Bitrix\Main\UserGroupTable:USER.GROUP_ID'] = $this->userGroupID;
+
         $items = [];
         $cnt = UserTable::getCount($filter);
         $offset = ($this->arParams['PAGE_EXPORT'] - 1) * $this->arParams['EXPORT_ELEMENT_COUNT'];
@@ -242,6 +270,7 @@ class TestTaskComponent extends \CBitrixComponent
 
         try {
             $this->getAllFields();
+            if ($this->arParams['CHECK_GROUP_REG']) $this->checkGroupParam();
             $this->checkParams();
             $this->executeProlog();
 
