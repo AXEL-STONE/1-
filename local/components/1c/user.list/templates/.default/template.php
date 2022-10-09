@@ -26,7 +26,7 @@ $jsParams = [
 ];
 
 ?>
-Проверка кэшировани: echo time(); = <?php echo time();?>
+Проверка кэширования: echo time(); = <?php echo time();?>
 <br />
 <main>
     <div class="row">
