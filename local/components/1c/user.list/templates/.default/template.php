@@ -93,4 +93,4 @@ $jsParams = [
 <script>
     new JCUserList(<?=CUtil::PhpToJSObject($jsParams, false, true)?>);
 </script>
-<?php unset($actualItem, $itemIds, $jsParams);?>
+<?php unset($jsParams);?>

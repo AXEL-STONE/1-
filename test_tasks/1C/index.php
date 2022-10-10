@@ -1,6 +1,6 @@
 <?php
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php");
-$APPLICATION->SetTitle("Тествое задание для 1С");
+$APPLICATION->SetTitle("Тестовое задание для 1С");
 ?>
 Проверка AJAX: echo time(); = <?php echo time();?>
 <br />
